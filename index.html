@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roll Call Sheet</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14213d">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#fcfcfa;--paper:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .38 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");--card:#fff;--ink:#14213d;--mute:#6b7a90;--line:#d5dce6;--ok:#1b7f5c;--okbg:#e0f3ea;--bad:#c62f3b;--badbg:#fde6e8;--late:#b86e00;--latebg:#fff0d6;--acc:#2349c9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"]{--bg:#0f1624;--card:#17213a;--ink:#e7ecf6;--mute:#8d9bb5;--line:#2a3757;--ok:#5fd3a3;--okbg:#14352b;--bad:#ff7b86;--badbg:#3d1c24;--late:#ffc15a;--latebg:#3b2d12;--acc:#8ea6ff}}
+:root[data-theme="dark"]{--bg:#0f1624;--card:#17213a;--ink:#e7ecf6;--mute:#8d9bb5;--line:#2a3757;--ok:#5fd3a3;--okbg:#14352b;--bad:#ff7b86;--badbg:#3d1c24;--late:#ffc15a;--latebg:#3b2d12;--acc:#8ea6ff}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background-image:var(--paper);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.wrap{max-width:560px;margin:0 auto;padding:12px 12px 40px}
+h1{font-size:22px;margin:6px 2px 10px;letter-spacing:-.3px}
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:10px;padding:10px;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+label{font-size:13px;color:var(--mute);display:block;margin-bottom:2px}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+.f{flex:1;min-width:120px}
+.tabs{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.tab{flex:1;min-width:64px;padding:8px 6px;border:1.5px solid var(--ink);background:var(--card);border-radius:8px;font-weight:600;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.sum{display:flex;gap:8px;margin-bottom:10px}
+.sum div{flex:1;text-align:center;border-radius:10px;padding:8px 4px;font-weight:700;font-size:20px;line-height:1.1}
+.sum small{display:block;font-size:12px;font-weight:500}
+.sp{background:var(--okbg);color:var(--ok)}.sa{background:var(--badbg);color:var(--bad)}.sl{background:var(--latebg);color:var(--late)}
+.sheet{background:var(--card);border:1.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.s{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;border-bottom:1px solid #bcd3ec;background:transparent;text-align:left;cursor:pointer;min-height:48px}
+.s:last-child{border-bottom:0}
+.no{width:52px;color:var(--ink);font-weight:700;font-size:18px;flex:none;font-variant-numeric:tabular-nums}
+.nm{flex:1;overflow-wrap:anywhere}
+.st{flex:none;min-width:74px;text-align:center;padding:5px 8px;border-radius:999px;font-weight:700;font-size:14px}
+.s.P .st{background:var(--okbg);color:var(--ok)}
+.s.A{background:var(--badbg)}.s.A .st{background:var(--bad);color:#fff}
+.s.L .st{background:var(--latebg);color:var(--late)}
+.s.A .nm{text-decoration:line-through;text-decoration-thickness:2px}
+.btn{padding:10px 14px;border-radius:8px;border:1.5px solid var(--ink);background:var(--card);font-weight:600;cursor:pointer}
+.btn.main{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:focus-visible,.s:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.hint{color:var(--mute);font-size:13px;margin:8px 2px}
+textarea{min-height:140px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.ov{position:fixed;inset:0;background:rgba(10,15,30,.88);z-index:50;display:none;flex-direction:column;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.ov.on{display:flex}
+.ov .box{flex:1;overflow:auto;background:#fff;border-radius:8px}
+.ov img{display:block;width:100%;height:auto}
+.ov .row{margin-top:10px}
+.print{display:none}
+.seg{display:flex;gap:5px;flex:none}
+.sb{width:42px;height:38px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:16px;cursor:pointer}
+.sb.P.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.sb.A.on{background:var(--bad);border-color:var(--bad);color:#fff}
+.sb.L.on{background:var(--late);border-color:var(--late);color:#fff}
+.sb:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.sheet{background-color:var(--card);background-image:var(--paper);position:relative}
+.sheet::before{content:"";position:absolute;left:70px;top:0;bottom:0;width:2px;background:#ec9aa3;opacity:.75;pointer-events:none;z-index:1}
+@media print{body{background:#fff;color:#000}.noprint{display:none!important}.print{display:block}.sheet{border:1px solid #000}.s{break-inside:avoid;padding:4px 8px;min-height:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Roll call sheet</h1>
+
+<div class="panel noprint">
+  <div class="row">
+    <div class="f"><label for="date">Date</label><input type="date" id="date"></div>
+    <div class="f"><label for="subj">Subject / class name</label><input id="subj" placeholder="e.g. Math"></div>
+  </div>
+  <div class="tabs" id="tabs" role="group" aria-label="Period"></div>
+</div>
+
+<div class="sum noprint" id="sum"></div>
+<div class="print" id="ptitle"></div>
+<div class="sheet" id="sheet"><p style="padding:16px;margin:0;font-weight:600">The rolls only show up when JavaScript runs. If you can read this, open the file in Chrome or Safari instead of a file preview or in-app viewer.</p></div>
+<p class="hint noprint">Tap P (present), A (absent) or L (late) next to each roll. Everyone starts as Present.</p>
+
+<div class="panel noprint">
+  <div class="row">
+    <button class="btn main" id="copy">Copy report</button>
+    <button class="btn main" id="img">Save as image</button>
+    <button class="btn" id="print">Print / save PDF</button>
+    <button class="btn" id="allp">All present</button>
+    <button class="btn" id="alla">All absent</button>
+    <button class="btn" id="alll">All late</button>
+  </div>
+  <p class="hint">Tip: screenshot the sheet or copy the report, then send it to your teacher.</p>
+</div>
+
+<div class="panel noprint">
+  <div class="row" style="margin-bottom:8px"><div class="f"><label for="start">First roll number</label><input id="start" type="number" inputmode="numeric"></div></div>
+  <label for="short" style="display:flex;gap:8px;align-items:center;color:var(--ink);margin-bottom:8px"><input type="checkbox" id="short" style="width:auto"> Show only last 3 digits on the sheet</label>
+  <label for="cnt">How many students</label>
+  <div class="row"><input id="cnt" type="number" min="1" max="200" inputmode="numeric" style="flex:1"><button class="btn main" id="setcnt">Save rolls</button></div>
+  <label for="names" style="margin-top:10px">Names are optional (one per line, in roll order)</label>
+  <textarea id="names" placeholder="Paste your class list here"></textarea>
+  <div class="row" style="margin-top:8px">
+    <button class="btn main" id="savenames">Save list</button>
+    <button class="btn" id="theme">Light / dark</button>
+  </div>
+</div>
+</div>
+<div class="ov noprint" id="ov"><div class="box"><img id="pic" alt="Attendance sheet"></div><div class="row"><button class="btn main" id="dl">Download</button><button class="btn" id="sh">Share</button><button class="btn" id="cl">Close</button></div><p class="hint" style="color:#fff">Or press and hold the picture to save it.</p></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+var KEY="rollcall-v1";
+var db={students:[],marks:{},subj:{},period:1};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.students)db=p;}}catch(e){}
+if(!db.students||!db.students.length){db.students=[];for(var i=1;i<=60;i++)db.students.push("");}
+db.students=db.students.map(function(n){return /^Student \d+$/.test(n)?"":n;});
+if(!db.marks)db.marks={};if(!db.subj)db.subj={};
+if(!db.start)db.start=67101;if(db.short===undefined)db.short=true;
+var $=function(id){return document.getElementById(id)};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){}}
+function rf(i){return String((+db.start||1)+i);}
+function rl(i){var r=rf(i);return db.short?r.slice(-3):r;}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+$("date").value=today();
+function sk(){return $("date").value+"|"+db.period}
+function cur(){return db.marks[sk()]||(db.marks[sk()]={})}
+var LBL={P:"Present",A:"Absent",L:"Late"};
+function tabs(){
+  var h="";for(var i=1;i<=6;i++)h+='<button class="tab" data-p="'+i+'" aria-pressed="'+(db.period===i)+'">Period '+i+'</button>';
+  $("tabs").innerHTML=h;
+}
+function render(){
+  var m=cur(),h="",c={P:0,A:0,L:0};
+  db.students.forEach(function(n,i){
+    var s=m[i]||"P";c[s]++;
+    h+='<div class="s '+s+'"><span class="no">'+rl(i)+'</span><span class="nm"></span><span class="seg">'+['P','A','L'].map(function(k){return '<button class="sb '+k+(s===k?' on':'')+'" data-i="'+i+'" data-k="'+k+'" aria-pressed="'+(s===k)+'">'+k+'</button>';}).join('')+'</span></div>';
+  });
+  $("sheet").innerHTML=h;
+  var nodes=$("sheet").querySelectorAll(".nm");
+  db.students.forEach(function(n,i){nodes[i].textContent=n;});
+  $("sum").innerHTML='<div class="sp">'+c.P+'<small>Present</small></div><div class="sa">'+c.A+'<small>Absent</small></div><div class="sl">'+c.L+'<small>Late</small></div>';
+  $("subj").value=db.subj[sk()]||"";
+  $("ptitle").innerHTML="";
+  var t=document.createElement("h2");t.textContent=($("subj").value||"Class")+" · Period "+db.period+" · "+$("date").value;
+  $("ptitle").appendChild(t);
+  $("names").value=db.students.some(Boolean)?db.students.join("\n"):"";$("cnt").value=db.students.length;$("start").value=db.start;$("short").checked=!!db.short;
+}
+function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");setTimeout(function(){e.classList.remove("on")},1800);}
+$("tabs").addEventListener("click",function(e){var b=e.target.closest(".tab");if(!b)return;db.period=+b.dataset.p;save();tabs();render();});
+$("date").addEventListener("change",function(){render();});
+$("subj").addEventListener("input",function(){db.subj[sk()]=this.value;save();});
+$("sheet").addEventListener("click",function(e){
+  var b=e.target.closest(".sb");if(!b)return;
+  var i=+b.dataset.i,m=cur();
+  m[i]=b.dataset.k;
+  if(m[i]==="P")delete m[i];
+  save();var y=window.scrollY;render();window.scrollTo(0,y);
+});
+function report(){
+  var m=cur(),A=[],L=[],P=0;
+  db.students.forEach(function(n,i){var s=m[i]||"P";var lb=n?rf(i)+" "+n:rf(i);if(s==="A")A.push(lb);else if(s==="L")L.push(lb);else P++;});
+  return "Attendance: "+($("subj").value||"Class")+", Period "+db.period+"\nDate: "+$("date").value+"\nTotal: "+db.students.length+" | Present: "+P+" | Absent: "+A.length+" | Late: "+L.length+
+   "\n\nAbsent:\n"+(A.length?A.join("\n"):"None")+"\n\nLate:\n"+(L.length?L.join("\n"):"None");
+}
+$("copy").addEventListener("click",function(){
+  var t=report();
+  function fb(){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Report copied");}catch(e){toast("Copy failed");}a.remove();}
+  try{navigator.clipboard.writeText(t).then(function(){toast("Report copied")},fb);}catch(e){fb();}
+});
+$("print").addEventListener("click",function(){try{window.print();}catch(e){toast("Printing isn’t available here");}});
+function setAll(k,t){var m={};if(k!=="P")db.students.forEach(function(n,i){m[i]=k;});db.marks[sk()]=m;save();render();toast(t);}
+$("allp").addEventListener("click",function(){setAll("P","Everyone marked present");});
+$("alla").addEventListener("click",function(){setAll("A","Everyone marked absent");});
+$("alll").addEventListener("click",function(){setAll("L","Everyone marked late");});
+$("savenames").addEventListener("click",function(){
+  var l=$("names").value.split("\n").map(function(x){return x.trim()});
+  while(l.length&&!l[l.length-1])l.pop();
+  if(!l.length){toast("Add at least one name");return;}
+  db.students=l;save();render();toast(l.length+" students saved");
+});
+$("setcnt").addEventListener("click",function(){
+  var n=parseInt($("cnt").value,10);if(!n||n<1){toast("Enter a number");return;}
+  var st=parseInt($("start").value,10);if(st>0)db.start=st;
+  n=Math.min(n,200);while(db.students.length<n)db.students.push("");db.students=db.students.slice(0,n);save();render();toast(n+" rolls set");
+});
+var lastURL="",lastName="attendance.png";
+function makeImage(){
+  var n=db.students.length,m=cur(),hasN=db.students.some(Boolean);
+  var cols=n>30?3:n>14?2:1,per=Math.ceil(n/cols);
+  var wr=140,wn=hasN?260:0,ws=120,bw=wr+wn+ws,pad=24,gap=20,rh=44,top=120;
+  var W=cols*bw+(cols-1)*gap+pad*2,H=top+(per+1)*rh+pad;
+  var cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  var x=cv.getContext("2d");
+  x.fillStyle="#fff";x.fillRect(0,0,W,H);
+  var c={P:0,A:0,L:0};db.students.forEach(function(q,i){c[m[i]||"P"]++;});
+  x.textBaseline="middle";x.fillStyle="#14213d";x.font="bold 32px sans-serif";x.textAlign="left";
+  x.fillText((db.subj[sk()]||"Class")+" - Period "+db.period,pad,40);
+  x.font="22px sans-serif";
+  x.fillText($("date").value+"    Total "+n+"    Present "+c.P+"    Absent "+c.A+"    Late "+c.L,pad,84);
+  function cell(x0,y0,w,t,fill,col,bold,al){
+    x.fillStyle=fill;x.fillRect(x0,y0,w,rh);
+    x.strokeStyle="#8a96a8";x.lineWidth=1.5;x.strokeRect(x0,y0,w,rh);
+    x.fillStyle=col;x.font=(bold?"bold ":"")+"21px sans-serif";x.textAlign=al;
+    x.fillText(t,al==="center"?x0+w/2:x0+12,y0+rh/2+1);
+  }
+  var ST={P:["Present","#ffffff","#1b7f5c"],A:["Absent","#f8c9cd","#b3202c"],L:["Late","#ffe2a8","#8a5200"]};
+  for(var b=0;b<cols;b++){
+    var ox=pad+b*(bw+gap);
+    cell(ox,top,wr,"Roll","#dfe7f3","#14213d",true,"center");
+    if(hasN)cell(ox+wr,top,wn,"Name","#dfe7f3","#14213d",true,"left");
+    cell(ox+wr+wn,top,ws,"Status","#dfe7f3","#14213d",true,"center");
+    for(var r=0;r<per;r++){
+      var i=b*per+r;if(i>=n)break;
+      var s=ST[m[i]||"P"],y=top+(r+1)*rh;
+      cell(ox,y,wr,rf(i),"#fff","#14213d",true,"center");
+      if(hasN)cell(ox+wr,y,wn,db.students[i],"#fff","#14213d",false,"left");
+      cell(ox+wr+wn,y,ws,s[0],s[1],s[2],true,"center");
+    }
+  }
+  lastName="attendance-"+$("date").value+"-P"+db.period+".png";
+  return cv;
+}
+$("img").addEventListener("click",function(){
+  try{var cv=makeImage();lastURL=cv.toDataURL("image/png");$("pic").src=lastURL;$("ov").classList.add("on");}
+  catch(e){toast("Couldn’t make the image");}
+});
+$("cl").addEventListener("click",function(){$("ov").classList.remove("on");});
+$("dl").addEventListener("click",function(){
+  var a=document.createElement("a");a.href=lastURL;a.download=lastName;document.body.appendChild(a);a.click();a.remove();toast("Saving image");
+});
+$("sh").addEventListener("click",function(){
+  try{
+    var cv=makeImage();
+    cv.toBlob(function(bl){
+      try{
+        var f=new File([bl],lastName,{type:"image/png"});
+        if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:"Attendance"}).catch(function(){});
+        else toast("Sharing isn’t available. Use Download.");
+      }catch(e){toast("Sharing isn’t available. Use Download.");}
+    },"image/png");
+  }catch(e){toast("Couldn’t share");}
+});
+$("short").addEventListener("change",function(){db.short=this.checked;save();render();});
+$("theme").addEventListener("click",function(){
+  var r=document.documentElement,d=r.getAttribute("data-theme");
+  var sysDark=window.matchMedia("(prefers-color-scheme: dark)").matches;
+  var now=d||"light";
+  r.setAttribute("data-theme",now==="dark"?"light":"dark");
+});
+tabs();render();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){try{navigator.serviceWorker.register("sw.js");}catch(e){}});}</script>
+</body>
+</html>
